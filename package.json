@@ -1,0 +1,23 @@
+{
+  "name": "gulpstart",
+  "version": "1.0.0",
+  "description": "Creating my initial-base gulpfile",
+  "main": "index.js",
+  "scripts": {
+    "gulp": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WebstyleUgn/GulpStart.git"
+  },
+  "keywords": [],
+  "author": "Yevhen Lakhno",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WebstyleUgn/GulpStart/issues"
+  },
+  "homepage": "https://github.com/WebstyleUgn/GulpStart#readme",
+  "devDependencies": {
+    "gulp": "^4.0.2"
+  }
+}
