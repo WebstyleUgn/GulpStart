@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/WebstyleUgn/GulpStart#readme",
   "devDependencies": {
-    "gulp": "^4.0.2"
+    "gulp": "^4.0.2",
+    "gulp-rm": "^2.0.0"
   }
 }
