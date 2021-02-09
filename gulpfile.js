@@ -6,7 +6,9 @@ const { src, dest, task, series, watch } = require("gulp"),
       reload = browserSync.reload,
       sassGlob = require("gulp-sass-glob"),
       autoprefixer = require("gulp-autoprefixer"),
-      px2rem = require("gulp-smile-px2rem");
+      px2rem = require("gulp-smile-px2rem"),
+      gcmq = require("gulp-group-css-media-queries"),
+      cleanCSS = require("gulp-clean-css");
 
 sass.compiler = require("node-sass");
 
@@ -42,9 +44,10 @@ task("styles", () => {
         .pipe(sass().on("error", sass.logError))
         .pipe(px2rem())
         .pipe(autoprefixer({
-            browsers: ['last 2 versions'],
             cascade: false
         }))
+        .pipe(gcmq())
+        .pipe(cleanCSS({compatibility: 'ie8'}))
         .pipe(dest("./dist"));
 });
 

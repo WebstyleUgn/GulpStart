@@ -4,9 +4,17 @@ header {
 
 header-test {
     color: #000;
+    
+    @media (max-width: 768px) {
+        max-width: 500px;
+    }
 }
 
 .new {
     display: flex;
     transform: translate(-50%, -50%);
+
+    @media (max-width: 768px) {
+        color: #fff;
+    }
 }
