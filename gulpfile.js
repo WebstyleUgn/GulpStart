@@ -4,7 +4,8 @@ const { src, dest, task, series, watch } = require("gulp"),
       concat = require("gulp-concat"),
       browserSync = require("browser-sync"),
       reload = browserSync.reload,
-      sassGlob = require("gulp-sass-glob");
+      sassGlob = require("gulp-sass-glob"),
+      autoprefixer = require("gulp-autoprefixer");
 
 sass.compiler = require("node-sass");
 
@@ -38,6 +39,10 @@ task("styles", () => {
         .pipe(concat("main.scss"))
         .pipe(sassGlob())
         .pipe(sass().on("error", sass.logError))
+        .pipe(autoprefixer({
+            browsers: ['last 2 versions'],
+            cascade: false
+        }))
         .pipe(dest("./dist"));
 });
 
