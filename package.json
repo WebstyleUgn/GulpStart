@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/WebstyleUgn/GulpStart#readme",
   "devDependencies": {
+    "browser-sync": "^2.26.14",
     "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
     "gulp-rm": "^2.0.0",

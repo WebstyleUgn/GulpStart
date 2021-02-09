@@ -1,16 +1,30 @@
 const { src, dest, task, series, watch } = require("gulp"),
       rm = require("gulp-rm"),
       sass = require("gulp-sass"),
-      concat = require("gulp-concat");
+      concat = require("gulp-concat"),
+      browserSync = require("browser-sync"),
+      reload = browserSync.reload;
 
 sass.compiler = require("node-sass");
 
 task("clean", () => {
-    return src("dist/**/*", { read: false }).pipe(rm());
+    return src("dist/**/*", { read: false })
+        .pipe(rm());
 });
 
-task("copy", () => {
-    return src("src/styles/main.scss").pipe(dest("dist"));
+task("server", () => {
+    browserSync.init({
+        server: {
+            baseDir: "./dist"
+        },
+        open: false
+    })
+});
+
+task("copy:html", () => {
+    return src("src/*.html")
+        .pipe(dest("dist"))
+        .pipe(reload({ stream: true }));
 });
 
 const styles = [
@@ -25,5 +39,6 @@ task("styles", () => {
         .pipe(dest("./dist"));
 });
 
-watch('./src/**/*.scss', series('styles'));
-task("default", series("clean", "styles"));
+watch("./src/**/*.scss", series("styles"));
+watch("./src/*.html", series("copy:html"));
+task("default", series("clean", "copy:html", "styles", "server"));
