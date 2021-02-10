@@ -8,7 +8,8 @@ const { src, dest, task, series, watch } = require("gulp"),
       autoprefixer = require("gulp-autoprefixer"),
       px2rem = require("gulp-smile-px2rem"),
       gcmq = require("gulp-group-css-media-queries"),
-      cleanCSS = require("gulp-clean-css");
+      cleanCSS = require("gulp-clean-css"),
+      sourcemaps = require("gulp-sourcemaps");
 
 sass.compiler = require("node-sass");
 
@@ -39,6 +40,7 @@ const styles = [
 
 task("styles", () => {
     return src(styles)
+        .pipe(sourcemaps.init())
         .pipe(concat("main.scss"))
         .pipe(sassGlob())
         .pipe(sass().on("error", sass.logError))
@@ -46,8 +48,9 @@ task("styles", () => {
         .pipe(autoprefixer({
             cascade: false
         }))
-        .pipe(gcmq())
+        // .pipe(gcmq())
         .pipe(cleanCSS({compatibility: 'ie8'}))
+        .pipe(sourcemaps.write())
         .pipe(dest("./dist"));
 });
 
