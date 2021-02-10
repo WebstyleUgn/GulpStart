@@ -54,6 +54,15 @@ task("styles", () => {
         .pipe(dest("./dist"));
 });
 
+task("scripts", () => {
+    return src("src/scripts/*.js")
+        .pipe(sourcemaps.init())
+        .pipe(concat("main.js", {newLine: "\r\n;"}))
+        .pipe(sourcemaps.write())
+        .pipe(dest("dist"))
+        .pipe(reload({ stream: true }));
+});
+
 watch("./src/**/*.scss", series("styles"));
 watch("./src/*.html", series("copy:html"));
-task("default", series("clean", "copy:html", "styles", "server"));
+task("default", series("clean", "copy:html", "styles", "scripts", "server"));
