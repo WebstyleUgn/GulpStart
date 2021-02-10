@@ -9,7 +9,8 @@ const { src, dest, task, series, watch } = require("gulp"),
       px2rem = require("gulp-smile-px2rem"),
       gcmq = require("gulp-group-css-media-queries"),
       cleanCSS = require("gulp-clean-css"),
-      sourcemaps = require("gulp-sourcemaps");
+      sourcemaps = require("gulp-sourcemaps"),
+      babel = require("gulp-babel");
 
 sass.compiler = require("node-sass");
 
@@ -58,6 +59,9 @@ task("scripts", () => {
     return src("src/scripts/*.js")
         .pipe(sourcemaps.init())
         .pipe(concat("main.js", {newLine: "\r\n;"}))
+        .pipe(babel({
+            presets: ["@babel/env"]
+        }))
         .pipe(sourcemaps.write())
         .pipe(dest("dist"))
         .pipe(reload({ stream: true }));
