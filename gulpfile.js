@@ -13,37 +13,33 @@ const { src, dest, task, series, watch } = require("gulp"),
       babel = require("gulp-babel"),
       uglify = require("gulp-uglify"),
       svgo = require("gulp-svgo"),
-      svgSprite = require("gulp-svg-sprite");
+      svgSprite = require("gulp-svg-sprite"),
+      {DIST_PATH, SRC_PATH, JS_LIBS, STYLES_LIBS} = require("./gulp.config");
 
 sass.compiler = require("node-sass");
 
 task("clean", () => {
-    return src("dist/**/*", { read: false })
+    return src(`${DIST_PATH}/**/*`, { read: false })
         .pipe(rm());
 });
 
 task("server", () => {
     browserSync.init({
         server: {
-            baseDir: "./dist"
+            baseDir: DIST_PATH
         },
         open: false
     })
 });
 
 task("copy:html", () => {
-    return src("src/*.html")
-        .pipe(dest("dist"))
+    return src(`${SRC_PATH}/*.html`)
+        .pipe(dest(DIST_PATH))
         .pipe(reload({ stream: true }));
 });
 
-const styles = [
-    "node_modules/normalize.css/normalize.css",
-    "src/styles/main.scss"
-];
-
 task("styles", () => {
-    return src(styles)
+    return src([...STYLES_LIBS, `${SRC_PATH}/styles/main.scss`])
         .pipe(sourcemaps.init())
         .pipe(concat("main.min.scss"))
         .pipe(sassGlob())
@@ -55,17 +51,12 @@ task("styles", () => {
         // .pipe(gcmq())
         .pipe(cleanCSS({compatibility: 'ie8'}))
         .pipe(sourcemaps.write())
-        .pipe(dest("./dist"))
+        .pipe(dest(DIST_PATH))
         .pipe(reload({stream: true}));
 });
 
-const libs = [
-    "node_modules/jquery/dist/jquery.js",
-    "src/scripts/*.js"
-]
-
 task("scripts", () => {
-    return src(libs)
+    return src([...JS_LIBS, `${SRC_PATH}/scripts/*.js`])
         .pipe(sourcemaps.init())
         .pipe(concat("main.min.js", {newLine: "\r\n;"}))
         .pipe(babel({
@@ -73,12 +64,12 @@ task("scripts", () => {
         }))
         .pipe(uglify())
         .pipe(sourcemaps.write())
-        .pipe(dest("dist"))
+        .pipe(dest(DIST_PATH))
         .pipe(reload({ stream: true }));
 });
 
 task("icons", () => {
-    return src("src/images/icons/*.svg")
+    return src(`${SRC_PATH}/images/icons/*.svg`)
         .pipe(svgo({
             plugins: [
               {
@@ -95,11 +86,11 @@ task("icons", () => {
                 }
             }
         }))
-        .pipe(dest("dist/images/icons"));
+        .pipe(dest(`${DIST_PATH}/images/icons`));
 });
 
-watch("./src/**/*.scss", series("styles"));
-watch("./src/*.html", series("copy:html"));
-watch("./src/scripts/*.js", series("scripts"));
-watch("./src/images/icons/*.svg", series("icons"));
+watch(`${SRC_PATH}/**/*.scss`, series("styles"));
+watch(`${SRC_PATH}/*.html`, series("copy:html"));
+watch(`${SRC_PATH}/scripts/*.js`, series("scripts"));
+watch(`${SRC_PATH}/images/icons/*.svg`, series("icons"));
 task("default", series("clean", "copy:html", "styles", "scripts", "icons", "server"));
