@@ -3,5 +3,7 @@
 
     const isEleven = num => num === 11;
 
-    isEleven(a);
+    const manyVars = isEleven(a);
+
+    console.log(manyVars, "this is var b");
 })()

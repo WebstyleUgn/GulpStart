@@ -10,7 +10,8 @@ const { src, dest, task, series, watch } = require("gulp"),
       gcmq = require("gulp-group-css-media-queries"),
       cleanCSS = require("gulp-clean-css"),
       sourcemaps = require("gulp-sourcemaps"),
-      babel = require("gulp-babel");
+      babel = require("gulp-babel"),
+      uglify = require("gulp-uglify");
 
 sass.compiler = require("node-sass");
 
@@ -42,7 +43,7 @@ const styles = [
 task("styles", () => {
     return src(styles)
         .pipe(sourcemaps.init())
-        .pipe(concat("main.scss"))
+        .pipe(concat("main.min.scss"))
         .pipe(sassGlob())
         .pipe(sass().on("error", sass.logError))
         .pipe(px2rem())
@@ -52,16 +53,23 @@ task("styles", () => {
         // .pipe(gcmq())
         .pipe(cleanCSS({compatibility: 'ie8'}))
         .pipe(sourcemaps.write())
-        .pipe(dest("./dist"));
+        .pipe(dest("./dist"))
+        .pipe(reload({stream: true}));
 });
 
+const libs = [
+    "node_modules/jquery/dist/jquery.js",
+    "src/scripts/*.js"
+]
+
 task("scripts", () => {
-    return src("src/scripts/*.js")
+    return src(libs)
         .pipe(sourcemaps.init())
-        .pipe(concat("main.js", {newLine: "\r\n;"}))
+        .pipe(concat("main.min.js", {newLine: "\r\n;"}))
         .pipe(babel({
             presets: ["@babel/env"]
         }))
+        .pipe(uglify())
         .pipe(sourcemaps.write())
         .pipe(dest("dist"))
         .pipe(reload({ stream: true }));
@@ -69,4 +77,5 @@ task("scripts", () => {
 
 watch("./src/**/*.scss", series("styles"));
 watch("./src/*.html", series("copy:html"));
+watch("./src/scripts/*.js", series("scripts"));
 task("default", series("clean", "copy:html", "styles", "scripts", "server"));
