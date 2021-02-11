@@ -11,7 +11,9 @@ const { src, dest, task, series, watch } = require("gulp"),
       cleanCSS = require("gulp-clean-css"),
       sourcemaps = require("gulp-sourcemaps"),
       babel = require("gulp-babel"),
-      uglify = require("gulp-uglify");
+      uglify = require("gulp-uglify"),
+      svgo = require("gulp-svgo"),
+      svgSprite = require("gulp-svg-sprite");
 
 sass.compiler = require("node-sass");
 
@@ -75,7 +77,29 @@ task("scripts", () => {
         .pipe(reload({ stream: true }));
 });
 
+task("icons", () => {
+    return src("src/images/icons/*.svg")
+        .pipe(svgo({
+            plugins: [
+              {
+                  removeAttrs: {
+                      attrs: "(fill|stroke|style|width|height|data.*)"
+                  }
+              }  
+            ]
+        }))
+        .pipe(svgSprite({
+            mode: {
+                symbol: {
+                    sprite: "../sprite.svg"
+                }
+            }
+        }))
+        .pipe(dest("dist/images/icons"));
+});
+
 watch("./src/**/*.scss", series("styles"));
 watch("./src/*.html", series("copy:html"));
 watch("./src/scripts/*.js", series("scripts"));
-task("default", series("clean", "copy:html", "styles", "scripts", "server"));
+watch("./src/images/icons/*.svg", series("icons"));
+task("default", series("clean", "copy:html", "styles", "scripts", "icons", "server"));
