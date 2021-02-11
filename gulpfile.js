@@ -14,6 +14,8 @@ const { src, dest, task, series, watch, parallel } = require("gulp"),
       uglify = require("gulp-uglify"),
       svgo = require("gulp-svgo"),
       svgSprite = require("gulp-svg-sprite"),
+      gulpif = require("gulp-if"),
+      env = process.env.NODE_ENV,
       {DIST_PATH, SRC_PATH, JS_LIBS, STYLES_LIBS} = require("./gulp.config");
 
 sass.compiler = require("node-sass");
@@ -40,30 +42,32 @@ task("copy:html", () => {
 
 task("styles", () => {
     return src([...STYLES_LIBS, `${SRC_PATH}/styles/main.scss`])
-        .pipe(sourcemaps.init())
+        .pipe(gulpif(env === "dev", sourcemaps.init()))
         .pipe(concat("main.min.scss"))
         .pipe(sassGlob())
         .pipe(sass().on("error", sass.logError))
         .pipe(px2rem())
-        .pipe(autoprefixer({
+        .pipe(gulpif(env === "dev", 
+        autoprefixer({
             cascade: false
-        }))
-        // .pipe(gcmq())
-        .pipe(cleanCSS({compatibility: 'ie8'}))
-        .pipe(sourcemaps.write())
+        })))
+        .pipe(gulpif(env === "prod", gcmq()))
+        .pipe(gulpif(env === "prod", cleanCSS({compatibility: 'ie8'})))
+        .pipe(gulpif(env === "dev", sourcemaps.write()))
         .pipe(dest(DIST_PATH))
         .pipe(reload({stream: true}));
 });
 
 task("scripts", () => {
     return src([...JS_LIBS, `${SRC_PATH}/scripts/*.js`])
-        .pipe(sourcemaps.init())
+        .pipe(gulpif(env === "dev", sourcemaps.init()))
         .pipe(concat("main.min.js", {newLine: "\r\n;"}))
-        .pipe(babel({
+        .pipe(gulpif(env === "prod", 
+        babel({
             presets: ["@babel/env"]
-        }))
-        .pipe(uglify())
-        .pipe(sourcemaps.write())
+        })))
+        .pipe(gulpif(env === "prod", uglify()))
+        .pipe(gulpif(env === "dev", sourcemaps.write()))
         .pipe(dest(DIST_PATH))
         .pipe(reload({ stream: true }));
 });
@@ -89,8 +93,21 @@ task("icons", () => {
         .pipe(dest(`${DIST_PATH}/images/icons`));
 });
 
-watch(`${SRC_PATH}/**/*.scss`, series("styles"));
-watch(`${SRC_PATH}/*.html`, series("copy:html"));
-watch(`${SRC_PATH}/scripts/*.js`, series("scripts"));
-watch(`${SRC_PATH}/images/icons/*.svg`, series("icons"));
-task("default", series("clean", parallel("copy:html", "styles", "scripts", "icons"), "server"));
+task("watch", () => {
+    watch(`${SRC_PATH}/**/*.scss`, series("styles"));
+    watch(`${SRC_PATH}/*.html`, series("copy:html"));
+    watch(`${SRC_PATH}/scripts/*.js`, series("scripts"));
+    watch(`${SRC_PATH}/images/icons/*.svg`, series("icons"));
+});
+
+task("default", series(
+        "clean", 
+        parallel("copy:html", "styles", "scripts", "icons"), 
+        parallel("watch", "server")
+    )
+);
+
+
+task("build", 
+    series("clean", parallel("copy:html", "styles", "scripts", "icons"))
+);
